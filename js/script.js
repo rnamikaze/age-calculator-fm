@@ -50,13 +50,11 @@ function checkInvalid(day, month, year) {
         }
     }
     if (!invalid) {
-        if (Object.prototype.toString.call(date) === "[object Date]") {
-            if (isNaN(date.getTime())) {
-                form[0].classList.add('invalid');
-                alertMsg[0].innerHTML = alertMsgText[3];
-                clearDisplay();
-                return true;
-            }
+        if (isNaN(date.getTime())) {
+            form[0].classList.add('invalid');
+            alertMsg[0].innerHTML = alertMsgText[3];
+            clearDisplay();
+            return true;
         }
         if (year > currentYear) {
             form[0].classList.add('invalid');
