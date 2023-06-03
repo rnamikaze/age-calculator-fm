@@ -20,6 +20,20 @@ function calculateAge(year, month, day) {
     };
 }
 
+function isValidDate(dateString) {
+    return moment(dateString, "YYYY-MM-DD", true).isValid();
+}
+
+function isDateBeyondCurrent(dateString) {
+    var inputDate = new Date(dateString);
+    var currentDate = new Date();
+
+    inputDate.setHours(0, 0, 0, 0);
+    currentDate.setHours(0, 0, 0, 0);
+
+    return inputDate > currentDate;
+}
+
 function checkInvalid(day, month, year) {
     let form = document.getElementsByClassName('input-control');
     let alertMsg = document.getElementsByClassName('alert-msg');
@@ -30,7 +44,18 @@ function checkInvalid(day, month, year) {
     let currentYear = current.getFullYear();
     let max = [31, 12, currentYear];
     let inputDate = [day, month, year];
-    const date = new Date(`${year}-${month}-${day}`);
+
+    let dayFix = day;
+    let monthFix = month;
+    if (day < 10) {
+        dayFix = "0" + day;
+    }
+    if (month < 10) {
+        monthFix = "0" + month;
+    }
+
+    let stringDate = String(`${year}-${monthFix}-${dayFix}`);
+    let date = new Date(stringDate);
     let invalid = false;
 
     for (let i = 0; i < form.length; i++) {
@@ -50,16 +75,28 @@ function checkInvalid(day, month, year) {
         }
     }
     if (!invalid) {
-        if (isNaN(date.getTime())) {
-            form[0].classList.add('invalid');
-            alertMsg[0].innerHTML = alertMsgText[3];
+        if(isDateBeyondCurrent(stringDate)) {
+            form[2].classList.add('invalid');
+            alertMsg[2].innerHTML = alertMsgText[2];
+            //console.log(isValidDate(stringDate));
             clearDisplay();
             return true;
         }
-        if (year > currentYear) {
+
+        if (isValidDate(stringDate) === false) {
             form[0].classList.add('invalid');
             alertMsg[0].innerHTML = alertMsgText[3];
+            console.log(isValidDate(stringDate));
             clearDisplay();
+            return true;
+        }
+
+        if (year > currentYear) {
+            form[0].classList.add('invalid');
+
+            alertMsg[0].innerHTML = alertMsgText[3];
+            clearDisplay();
+
             return true;
         }
     }
@@ -70,26 +107,26 @@ function checkInvalid(day, month, year) {
 function updateDisplay(day, month, year) {
     daysText.innerText = 0;
     monthText.innerText = 0;
-    yearText.innerText = year-15;
+    yearText.innerText = year - 15;
 
     let dayCount = 0;
     let monthCount = 0;
     let yearCount = 0;
 
-    const animateDay = setInterval(function() {
-        if(dayCount==day) {
+    const animateDay = setInterval(function () {
+        if (dayCount == day) {
             clearInterval(animateDay);
         }
         daysText.innerText = dayCount++;
     }, 200);
-    const animateMonth = setInterval(function() {
-        if(monthCount==month) {
+    const animateMonth = setInterval(function () {
+        if (monthCount == month) {
             clearInterval(animateMonth);
         }
         monthText.innerText = monthCount++;
     }, 250);
-    const animateYear = setInterval(function() {
-        if(yearCount==year) {
+    const animateYear = setInterval(function () {
+        if (yearCount == year) {
             clearInterval(animateYear);
         }
         yearText.innerText = yearCount++;
@@ -103,14 +140,15 @@ function clearDisplay() {
 }
 
 function run() {
-    let day = document.getElementById('day').value;
-    let month = document.getElementById('month').value;
-    let year = document.getElementById('year').value;
+    let day = parseInt(document.getElementById('day').value);
+    let month = parseInt(document.getElementById('month').value);
+    let year = parseInt(document.getElementById('year').value);
 
     const age = calculateAge(year, month, day);
     if (!checkInvalid(day, month, year)) {
         updateDisplay(age.days, age.months, age.years);
     } else {
+        clearDisplay();
         //console.log("Your age is:", age.years, "years,", age.months, "months, and", age.days, "days.");
     }
 }
